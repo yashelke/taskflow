@@ -1,0 +1,433 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Todo App - React + Tailwind</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'bounce-in': 'bounceIn 0.4s ease-out'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-slate-900 transition-colors duration-300 min-h-screen font-sans">
+    <!-- @COMPONENT: TodoApp [Main application container] -->
+    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- @COMPONENT: Header [App title and theme toggle] -->
+            <!-- @STATE: darkMode:boolean = false -->
+            <div class="flex items-center justify-between mb-8 animate-fade-in">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Todo App</h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Stay organized, get things done</p>
+                    </div>
+                </div>
+                
+                <!-- @FUNCTIONALITY: Theme toggle button should switch between light and dark modes -->
+                <button data-event="click:toggleTheme" data-implementation="Should toggle dark class on document.documentElement" 
+                        class="group relative w-14 h-8 bg-gray-200 dark:bg-gray-700 rounded-full p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                    <div class="w-6 h-6 bg-white dark:bg-gray-300 rounded-full shadow-sm transform transition-transform duration-300 dark:translate-x-6 group-hover:scale-110">
+                        <svg class="w-4 h-4 text-yellow-500 absolute top-1 left-1 dark:opacity-0 opacity-100 transition-opacity duration-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <svg class="w-4 h-4 text-gray-700 absolute top-1 left-1 dark:opacity-100 opacity-0 transition-opacity duration-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+            <!-- @END_COMPONENT: Header -->
+
+            <!-- @COMPONENT: TaskInput [New task creation form] -->
+            <!-- @STATE: newTask:string = '', isLoading:boolean = false -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-6 animate-fade-in">
+                <form data-event="submit:handleAddTask" data-implementation="Should validate input and add task to state" class="flex space-x-4">
+                    <div class="flex-1 relative">
+                        <input 
+                            type="text" 
+                            data-bind="newTask"
+                            placeholder="What needs to be done?" 
+                            data-mock="true"
+                            data-implementation="Controlled input with validation"
+                            class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
+                        />
+                    </div>
+                    <button 
+                        type="submit"
+                        data-event="click:handleAddTask"
+                        data-implementation="Should validate and submit new task"
+                        class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="flex items-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            <span>Add Task</span>
+                        </span>
+                    </button>
+                </form>
+            </div>
+            <!-- @END_COMPONENT: TaskInput -->
+
+            <!-- @COMPONENT: TaskStats [Task counter and filter buttons] -->
+            <!-- @STATE: filter:string = 'all', taskCounts:object = {total: 0, active: 0, completed: 0} -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-6 animate-slide-in">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                    <!-- Task Counter -->
+                    <div class="flex items-center space-x-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-primary-500" data-bind="taskCounts.active">3</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Active</div>
+                        </div>
+                        <div class="h-8 w-px bg-gray-200 dark:bg-gray-600"></div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-500" data-bind="taskCounts.completed">2</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Completed</div>
+                        </div>
+                        <div class="h-8 w-px bg-gray-200 dark:bg-gray-600"></div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-700 dark:text-gray-300" data-bind="taskCounts.total">5</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Buttons -->
+                    <div class="flex items-center space-x-2">
+                        <button data-event="click:setFilter('all')" data-implementation="Should update filter state"
+                                class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white shadow-sm hover:bg-primary-600 transition-all duration-200">
+                            All
+                        </button>
+                        <button data-event="click:setFilter('active')" data-implementation="Should update filter state"
+                                class="px-4 py-2 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200">
+                            Active
+                        </button>
+                        <button data-event="click:setFilter('completed')" data-implementation="Should update filter state"
+                                class="px-4 py-2 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200">
+                            Completed
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: TaskStats -->
+
+            <!-- @COMPONENT: TaskList [Main task list with CRUD operations] -->
+            <!-- @STATE: tasks:array = [], editingTask:string = null -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden animate-fade-in">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Your Tasks</h2>
+                        <button data-event="click:clearCompleted" data-implementation="Should remove all completed tasks"
+                                class="text-sm text-red-500 hover:text-red-600 font-medium transition-colors duration-200">
+                            Clear Completed
+                        </button>
+                    </div>
+
+                    <!-- @MAP: filteredTasks.map((task, index) => ( -->
+                    <div class="space-y-3">
+                        <!-- Task Item 1 - Active -->
+                        <div class="group flex items-center space-x-4 p-4 rounded-xl border border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 transition-all duration-200 hover:shadow-md bg-gray-50 dark:bg-slate-700/50" data-mock="true">
+                            <button data-event="click:toggleTask(task.id)" data-implementation="Should toggle task completion status"
+                                    class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-500 hover:border-primary-500 transition-colors duration-200 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-primary-500 opacity-0 group-hover:opacity-50 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-gray-900 dark:text-white font-medium truncate" data-bind="task.text">Complete project documentation</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400" data-bind="task.createdAt">Added 2 hours ago</div>
+                            </div>
+                            <div class="flex-shrink-0 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <button data-event="click:editTask(task.id)" data-implementation="Should enable inline editing"
+                                        class="p-2 text-gray-400 hover:text-primary-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                                <button data-event="click:deleteTask(task.id)" data-implementation="Should show confirmation and delete task"
+                                        class="p-2 text-gray-400 hover:text-red-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Task Item 2 - Completed -->
+                        <div class="group flex items-center space-x-4 p-4 rounded-xl border border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 transition-all duration-200 hover:shadow-md bg-green-50 dark:bg-green-900/10" data-mock="true">
+                            <button data-event="click:toggleTask(task.id)" data-implementation="Should toggle task completion status"
+                                    class="flex-shrink-0 w-6 h-6 rounded-full bg-green-500 border-2 border-green-500 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-gray-500 dark:text-gray-400 line-through font-medium truncate" data-bind="task.text">Review meeting notes</div>
+                                <div class="text-sm text-gray-400 dark:text-gray-500" data-bind="task.completedAt">Completed 1 hour ago</div>
+                            </div>
+                            <div class="flex-shrink-0 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <button data-event="click:editTask(task.id)" data-implementation="Should enable inline editing"
+                                        class="p-2 text-gray-400 hover:text-primary-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                                <button data-event="click:deleteTask(task.id)" data-implementation="Should show confirmation and delete task"
+                                        class="p-2 text-gray-400 hover:text-red-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Task Item 3 - Active with Priority -->
+                        <div class="group flex items-center space-x-4 p-4 rounded-xl border border-orange-200 dark:border-orange-800 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-200 hover:shadow-md bg-orange-50 dark:bg-orange-900/10" data-mock="true">
+                            <button data-event="click:toggleTask(task.id)" data-implementation="Should toggle task completion status"
+                                    class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-orange-400 dark:border-orange-500 hover:border-primary-500 transition-colors duration-200 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-primary-500 opacity-0 group-hover:opacity-50 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center space-x-2">
+                                    <div class="text-gray-900 dark:text-white font-medium truncate" data-bind="task.text">Prepare presentation slides</div>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200">
+                                        High Priority
+                                    </span>
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400" data-bind="task.dueDate">Due tomorrow</div>
+                            </div>
+                            <div class="flex-shrink-0 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <button data-event="click:editTask(task.id)" data-implementation="Should enable inline editing"
+                                        class="p-2 text-gray-400 hover:text-primary-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                                <button data-event="click:deleteTask(task.id)" data-implementation="Should show confirmation and delete task"
+                                        class="p-2 text-gray-400 hover:text-red-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Task Item 4 - Being Edited (Inline Edit Mode) -->
+                        <div class="group flex items-center space-x-4 p-4 rounded-xl border-2 border-primary-500 transition-all duration-200 shadow-md bg-primary-50 dark:bg-primary-900/10" data-mock="true">
+                            <button class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-500 transition-colors duration-200 flex items-center justify-center opacity-50">
+                                <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <input type="text" 
+                                       data-bind="editingText"
+                                       data-mock="true"
+                                       data-implementation="Should update task text on enter/blur"
+                                       value="Update website content"
+                                       class="w-full px-0 py-1 text-gray-900 dark:text-white bg-transparent border-0 focus:outline-none focus:ring-0 font-medium" />
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Press Enter to save, Escape to cancel</div>
+                            </div>
+                            <div class="flex-shrink-0 flex items-center space-x-2">
+                                <button data-event="click:saveEdit(task.id)" data-implementation="Should save edited task text"
+                                        class="p-2 text-green-500 hover:text-green-600 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                                <button data-event="click:cancelEdit" data-implementation="Should cancel editing and restore original text"
+                                        class="p-2 text-gray-400 hover:text-red-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Task Item 5 - Recently Added -->
+                        <div class="group flex items-center space-x-4 p-4 rounded-xl border border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 transition-all duration-200 hover:shadow-md bg-gray-50 dark:bg-slate-700/50 animate-bounce-in" data-mock="true">
+                            <button data-event="click:toggleTask(task.id)" data-implementation="Should toggle task completion status"
+                                    class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-500 hover:border-primary-500 transition-colors duration-200 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-primary-500 opacity-0 group-hover:opacity-50 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center space-x-2">
+                                    <div class="text-gray-900 dark:text-white font-medium truncate" data-bind="task.text">Call the client for feedback</div>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
+                                        New
+                                    </span>
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400" data-bind="task.createdAt">Just now</div>
+                            </div>
+                            <div class="flex-shrink-0 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <button data-event="click:editTask(task.id)" data-implementation="Should enable inline editing"
+                                        class="p-2 text-gray-400 hover:text-primary-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                                <button data-event="click:deleteTask(task.id)" data-implementation="Should show confirmation and delete task"
+                                        class="p-2 text-gray-400 hover:text-red-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+
+                    <!-- Empty State (shown when no tasks match filter) -->
+                    <div class="text-center py-12 hidden" data-implementation="Show when filteredTasks.length === 0">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No tasks found</h3>
+                        <p class="text-gray-500 dark:text-gray-400">Get started by adding your first task above.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: TaskList -->
+
+            <!-- @COMPONENT: Footer [Additional actions and shortcuts] -->
+            <div class="mt-8 text-center animate-fade-in">
+                <div class="inline-flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                    <div class="flex items-center space-x-2">
+                        <kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-xs">⌘</kbd>
+                        <span>+</span>
+                        <kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-xs">K</kbd>
+                        <span class="ml-2">Quick add</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-xs">⌘</kbd>
+                        <span>+</span>
+                        <kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-xs">/</kbd>
+                        <span class="ml-2">Search</span>
+                    </div>
+                    <button data-event="click:exportTasks" data-implementation="Should export tasks to JSON/CSV"
+                            class="hover:text-primary-500 transition-colors duration-200">
+                        Export Tasks
+                    </button>
+                </div>
+                <div class="mt-4 text-xs text-gray-400">
+                    Made with ❤️ using React + Tailwind CSS
+                </div>
+            </div>
+            <!-- @END_COMPONENT: Footer -->
+        </div>
+    </div>
+    <!-- @END_COMPONENT: TodoApp -->
+
+    <!-- @COMPONENT: DeleteConfirmModal [Confirmation dialog for task deletion] -->
+    <!-- @STATE: showDeleteModal:boolean = false, taskToDelete:string = null -->
+    <div class="fixed inset-0 z-50 hidden" data-implementation="Show when showDeleteModal is true" id="deleteModal">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" data-event="click:cancelDelete"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-slate-800 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 animate-bounce-in">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                            <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">Delete Task</h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Are you sure you want to delete this task? This action cannot be undone.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                        <button type="button" 
+                                data-event="click:confirmDelete" 
+                                data-implementation="Should delete the task and close modal"
+                                class="inline-flex w-full justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto transition-colors duration-200">
+                            Delete
+                        </button>
+                        <button type="button" 
+                                data-event="click:cancelDelete" 
+                                data-implementation="Should close modal without deleting"
+                                class="mt-3 inline-flex w-full justify-center rounded-xl bg-white dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 sm:mt-0 sm:w-auto transition-colors duration-200">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: DeleteConfirmModal -->
+
+    <script>
+    // TODO: Implement React component logic, state management, and local storage persistence
+    // TODO: Add keyboard shortcuts for better UX (Cmd+K for quick add, Enter to save, Escape to cancel)
+    // TODO: Implement drag and drop for task reordering
+    // TODO: Add task categories/tags support
+    // TODO: Implement search and filtering functionality
+    // TODO: Add data export/import capabilities
+    // TODO: Implement task due dates and reminders
+    // TODO: Add task priority levels
+    // TODO: Implement undo/redo functionality
+
+    // Example theme toggle functionality (would be implemented in React)
+    (function() {
+        // Theme persistence and toggle logic would go here
+        // This is just a placeholder to show the expected behavior
+        console.log('Theme toggle functionality would be implemented here');
+    })();
+    </script>
+</body>
+</html>
