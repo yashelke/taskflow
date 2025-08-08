@@ -1,6 +1,6 @@
 # Overview
 
-This is a modern full-stack Todo application built with React, TypeScript, Express.js, and PostgreSQL. The application features a beautiful, responsive UI with light/dark mode theming, built using shadcn/ui components and Tailwind CSS. The frontend uses React with TypeScript for type safety, while the backend is an Express.js server with Drizzle ORM for database operations. The application supports CRUD operations for todo items with local storage persistence on the frontend and is designed to scale with a proper database backend.
+TaskFlow is a modern, beautiful todo application built with React, TypeScript, and Tailwind CSS. The application features an animated landing page, intuitive task management interface, and seamless light/dark mode theming. TaskFlow focuses on frontend-only functionality with local storage persistence, providing a smooth and responsive user experience without backend dependencies. The application includes task creation, editing, completion tracking, filtering, and an elegant user interface with smooth animations.
 
 # User Preferences
 

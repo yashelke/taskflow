@@ -45,7 +45,7 @@ export const TodoApp = () => {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Todo App</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">TaskFlow</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">Stay organized, get things done</p>
             </div>
           </div>
