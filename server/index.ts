@@ -128,8 +128,14 @@ app.use((req, res, next) => {
   }
 
   // ✅ Fixed: Use 127.0.0.1 (IPv4) and remove reusePort to prevent ENOTSUP
-  const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen(port, "127.0.0.1", () => {
-    log(`✅ Server running at http://127.0.0.1:${port}`);
-  });
+  // const port = parseInt(process.env.PORT || "5001", 10);
+  // server.listen(port, "127.0.0.1", () => {
+  //   log(`✅ Server running at http://127.0.0.1:${port}`);
+  // });
+  // ✅ Use "0.0.0.0" for public binding and process.env.PORT for Render
+const port = parseInt(process.env.PORT || "5001", 10);
+server.listen(port, "0.0.0.0", () => {
+  log(`✅ Server running at http://0.0.0.0:${port}`);
+});
+
 })();
